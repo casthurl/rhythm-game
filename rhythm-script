@@ -1,0 +1,66 @@
+import time
+import random
+import threading
+import sys
+
+# define the beat keys
+BEAT_KEYS = ['a', 's', 'd', 'f']
+NUM_BEATS = 5  # number of beats to play in each game
+
+# game settings
+REACTION_TIME_LIMIT = 0.5  # time window (in seconds) to react to a beat
+SCORE_LIMIT = 3  # number of correct key presses needed to win
+
+def print_intro():
+    print("welcome to the terminal rhythm game!")
+    print("press the correct keys (a, s, d, f) when prompted.")
+    print("you have a limited time to hit the key (0.5 seconds).")
+    print(f"you need to hit {SCORE_LIMIT} beats to win.\n")
+
+def play_beat(beat_key, start_time):
+    """
+    function that simulates the beat and waits for user input.
+    it prints the beat prompt and checks if the player pressed the correct key
+    within the allowed time.
+    """
+    print(f"beat: {beat_key.upper()} - press {beat_key}!")
+    end_time = start_time + REACTION_TIME_LIMIT
+    
+    # wait for the player to press the key or time out
+    player_input = None
+    while time.time() < end_time:
+        if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+            player_input = sys.stdin.readline().strip()
+            break
+    
+    if player_input == beat_key:
+        return True
+    return False
+
+def play_game():
+    score = 0
+    beats = random.choices(BEAT_KEYS, k=NUM_BEATS)
+    
+    print_intro()
+    
+    start_time = time.time()
+    
+    # simulate the beats with a slight delay between each beat
+    for i, beat_key in enumerate(beats):
+        print(f"\n--- beat {i + 1}/{NUM_BEATS} ---")
+        # play the beat and check if the player pressed the correct key
+        if play_beat(beat_key, start_time):
+            score += 1
+            print(f"correct! your score: {score}")
+        else:
+            print("incorrect or too late! try again.")
+        start_time = time.time()  # update the start time for the next beat
+    
+    # end of the game, check if the player won
+    if score >= SCORE_LIMIT:
+        print("\ncongratulations, you win!")
+    else:
+        print("\ngame over! better luck next time.")
+
+if __name__ == "__main__":
+    play_game()
